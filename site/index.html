@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PromptOn — One prompt sets up everything</title>
+    <meta
+      name="description"
+      content="PromptOn is the control plane for your app's LLM prompts. Your coding AI moves every prompt and model call out of your codebase and wires up monitoring; new models are evaluated on your real traffic and shipped with a pin. Not a proxy."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="PromptOn" />
+    <meta property="og:title" content="PromptOn — One prompt sets up everything" />
+    <meta
+      property="og:description"
+      content="Your coding AI installs PromptOn, moves every prompt and model call out of your codebase, and wires up monitoring. Not a proxy: your app keeps its own keys."
+    />
+    <meta property="og:url" content="__HOME_URL__/" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Tokens — design/resend-brief.md `:root` (source of truth: design/DESIGN-resend.md). */
+      :root {
+        --bg-0: #000000;
+        --bg-1: #06060a;
+        --bg-2: #0a0a0c;
+        --bg-3: #101012;
+        --bg-4: #16161a;
+        --line: rgba(255, 255, 255, 0.06);
+        --line-2: rgba(255, 255, 255, 0.14);
+        --line-3: rgba(255, 255, 255, 0.28);
+        --divider-soft: rgba(255, 255, 255, 0.04);
+        --tx-0: #fcfdff;
+        --tx-body: rgba(252, 253, 255, 0.86);
+        --tx-1: rgba(252, 253, 255, 0.7);
+        --tx-2: #a1a4a5;
+        --tx-3: #888e90;
+        --tx-4: #464a4d;
+        --accent: #fcfdff;
+        --accent-on: #000000;
+        --accent-h: #f1f7fe;
+        --accent-soft: rgba(252, 253, 255, 0.08);
+        --accent-line: rgba(252, 253, 255, 0.24);
+        --link: #3b9eff;
+        --ok: #11ff99;
+        --warn: #ffc53d;
+        --err: #ff2047;
+        --ok-glow: rgba(34, 255, 153, 0.18);
+        --warn-glow: rgba(255, 89, 0, 0.22);
+        --err-glow: rgba(255, 32, 71, 0.34);
+        --blue-glow: rgba(0, 117, 255, 0.34);
+        --r-xs: 4px;
+        --r-sm: 6px;
+        --r: 8px;
+        --r-lg: 12px;
+        --r-xl: 16px;
+        --r-pill: 9999px;
+        --focus: rgba(252, 253, 255, 0.35);
+        --font-ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+        --font-body: "Geist", "Inter", system-ui, -apple-system, sans-serif;
+        --font-display: "Instrument Serif", "Tiempos Headline", Georgia, "Times New Roman", serif;
+        --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        --wrap: 1200px;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; }
+      html { scroll-behavior: smooth; scroll-padding-top: 80px; -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--bg-0);
+        color: var(--tx-0);
+        font-family: var(--font-body);
+        font-size: 16px;
+        line-height: 1.5;
+        letter-spacing: -0.005em;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      a { color: inherit; text-decoration: none; }
+      h1, h2, h3, p, dl, dt, dd, ul, ol, figure { margin: 0; }
+      ul, ol { padding: 0; list-style: none; }
+      button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+      code, pre { font-family: var(--font-mono); font-feature-settings: "liga" 0, "calt" 0; }
+      :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+      .lp-sr {
+        position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+      }
+      .lp-wrap { max-width: calc(var(--wrap) + 64px); margin: 0 auto; padding: 0 32px; }
+
+      /* Nav — 64px, hairline bottom border. */
+      .lp-nav { position: sticky; top: 0; z-index: 20; height: 64px; background: var(--bg-0); border-bottom: 1px solid var(--line); }
+      .lp-nav-in { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 64px; }
+      .lp-wordmark { font: 600 16px/1 var(--font-ui); letter-spacing: -0.02em; color: var(--tx-0); }
+      .lp-nav-links { display: flex; gap: 28px; justify-content: center; }
+      .lp-nav-links a, .lp-nav-menu-panel a { font: 500 14px/1.43 var(--font-body); letter-spacing: 0.35px; color: var(--tx-1); transition: color 0.15s ease; }
+      .lp-nav-links a:hover { color: var(--tx-0); }
+      .lp-nav-right { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
+      .lp-nav-menu { display: none; position: relative; }
+      .lp-nav-menu summary {
+        list-style: none; display: inline-flex; align-items: center; justify-content: center;
+        width: 36px; height: 36px; border-radius: var(--r); border: 1px solid var(--line-2);
+        background: var(--bg-3); color: var(--tx-0); cursor: pointer;
+      }
+      .lp-nav-menu summary::-webkit-details-marker { display: none; }
+      .lp-nav-menu-panel {
+        position: absolute; right: 0; top: 44px; min-width: 200px; padding: 8px;
+        background: var(--bg-2); border: 1px solid var(--line-2); border-radius: var(--r-lg);
+        display: flex; flex-direction: column;
+      }
+      .lp-nav-menu-panel a { display: block; padding: 10px 12px; border-radius: var(--r-sm); color: var(--tx-body); }
+      .lp-nav-menu-panel a:hover { background: var(--bg-3); color: var(--tx-0); }
+
+      /* Buttons — primary white/black, ghost, outline. 8px radius, 36px tall. No shadows. */
+      .lp-btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+        height: 36px; padding: 0 16px; border-radius: var(--r); border: 1px solid transparent;
+        font: 500 14px/1.43 var(--font-ui); white-space: nowrap; text-decoration: none; cursor: pointer;
+        transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      }
+      .lp-btn-primary { background: var(--accent); color: var(--accent-on); }
+      .lp-btn-primary:hover, .lp-btn-primary:active { background: var(--accent-h); }
+      .lp-btn-ghost { background: var(--bg-3); color: var(--tx-0); border-color: var(--line-2); }
+      .lp-btn-ghost:hover { background: var(--bg-4); }
+      .lp-btn-outline { background: var(--bg-0); color: var(--tx-0); border-color: var(--line-2); }
+      .lp-btn-outline:hover { background: var(--bg-2); border-color: var(--line-3); }
+      .lp-btn-copy { min-width: 140px; }
+
+      .lp-pill {
+        display: inline-flex; align-items: center; height: 26px; padding: 0 10px;
+        border-radius: var(--r-pill); background: var(--bg-3); border: 1px solid var(--line-2);
+        font: 400 12px/1.5 var(--font-ui); color: var(--tx-body); white-space: nowrap;
+      }
+
+      /* Hero stripe — 96px 32px, no glow. */
+      .lp-hero { padding: 96px 0; }
+      .lp-hero .lp-pill { margin-bottom: 24px; }
+      .lp-h1 {
+        font: 400 96px/1 var(--font-display); letter-spacing: -0.01em;
+        font-feature-settings: "ss01", "liga"; color: var(--tx-0); max-width: 1100px;
+      }
+      .lp-h1-dim { display: block; color: var(--tx-1); }
+      .lp-sub { margin-top: 32px; max-width: 720px; font: 400 20px/1.4 var(--font-body); color: var(--tx-1); }
+
+      .lp-prompt { margin-top: 80px; }
+      .lp-prompt-title { font: 500 28px/1.3 var(--font-ui); letter-spacing: -0.4px; color: var(--tx-0); }
+      .lp-prompt-title-light { color: var(--tx-2); font-weight: 400; }
+      .lp-prompt-lead { margin-top: 8px; font: 400 15px/1.5 var(--font-body); color: var(--tx-2); }
+      .lp-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+      .lp-trust { margin-top: 24px; max-width: 760px; font: 400 13px/1.6 var(--font-body); color: var(--tx-2); }
+
+      /* Code window — surface-deep, hairline-strong, 12px radius, traffic lights + tab strip. */
+      .lp-window { margin-top: 24px; background: var(--bg-1); border: 1px solid var(--line-2); border-radius: var(--r-lg); overflow: hidden; }
+      .lp-window-bar { display: flex; align-items: center; gap: 8px; padding: 11px 16px; border-bottom: 1px solid var(--line); }
+      .lp-dot { width: 10px; height: 10px; border-radius: var(--r-pill); }
+      .lp-dot-r { background: var(--err); }
+      .lp-dot-y { background: var(--warn); }
+      .lp-dot-g { background: var(--ok); }
+      .lp-tabs { display: flex; gap: 4px; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+      .lp-tab {
+        display: inline-block; padding: 6px 12px; border-radius: var(--r-sm); background: var(--bg-2);
+        border-bottom: 1px solid transparent; font: 400 13px/1.6 var(--font-mono); color: var(--tx-1);
+      }
+      .lp-tab-active { color: var(--tx-0); border-bottom-color: var(--line-2); }
+      .lp-code {
+        margin: 0; padding: 24px; font: 400 13px/1.6 var(--font-mono); color: var(--tx-body);
+        white-space: pre; overflow-x: auto; tab-size: 2;
+      }
+      .lp-code-diff { padding: 16px 0; white-space: normal; }
+      .lp-diff-line { display: block; padding: 2px 24px; white-space: pre; }
+      .lp-del { background: rgba(255, 32, 71, 0.08); }
+      .lp-add { background: rgba(34, 255, 153, 0.08); }
+      .lp-del .lp-sign { color: var(--err); }
+      .lp-add .lp-sign { color: var(--ok); }
+      .lp-diff-pane + .lp-diff-pane { border-top: 1px solid var(--line); }
+      .lp-caption { margin-top: 16px; font: 400 14px/1.5 var(--font-body); color: var(--tx-2); }
+      .lp-code-inline { font: 400 13px/1 var(--font-mono); background: var(--bg-3); border-radius: var(--r-xs); padding: 2px 5px; color: var(--tx-body); }
+
+      /* Sections — 96px rhythm, bands 128px, one atmospheric glow at the top of a band. */
+      .lp-section { position: relative; padding: 96px 0; border-top: 1px solid var(--line); scroll-margin-top: 64px; }
+      .lp-band { padding: 128px 0; }
+      .lp-section > .lp-wrap { position: relative; z-index: 1; }
+      .lp-glow::before {
+        content: ""; position: absolute; left: 0; right: 0; top: 0; height: 640px; z-index: 0;
+        pointer-events: none; opacity: 0.85;
+        background: radial-gradient(ellipse 55% 60% at 50% 0%, var(--glow) 0%, transparent 70%);
+      }
+      .lp-glow-blue { --glow: var(--blue-glow); }
+      .lp-glow-green { --glow: var(--ok-glow); }
+      .lp-glow-orange { --glow: var(--warn-glow); }
+      .lp-h2 { font: 400 56px/1.2 var(--font-body); letter-spacing: -2.8px; color: var(--tx-0); max-width: 900px; }
+      .lp-lead { margin-top: 16px; max-width: 640px; font: 400 18px/1.5 var(--font-body); color: var(--tx-1); }
+      .lp-head { margin-bottom: 56px; }
+      .lp-center { text-align: center; }
+      .lp-center .lp-h2, .lp-center .lp-lead { margin-left: auto; margin-right: auto; }
+
+      /* Grids and cards. */
+      .lp-grid { display: grid; gap: 16px; }
+      .lp-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .lp-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .lp-card {
+        display: flex; flex-direction: column; gap: 12px; background: var(--bg-2);
+        border: 1px solid var(--line); border-radius: var(--r-lg); padding: 32px;
+      }
+      .lp-card-num { font: 400 13px/1.6 var(--font-mono); color: var(--tx-3); }
+      .lp-card-title { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font: 500 20px/1.3 var(--font-ui); letter-spacing: -0.3px; color: var(--tx-0); }
+      .lp-card p { font: 400 16px/1.5 var(--font-body); color: var(--tx-2); }
+      .lp-card-bordered { border-color: var(--line-2); padding: 24px; gap: 8px; }
+      .lp-card-bordered .lp-card-title { font-size: 16px; letter-spacing: -0.2px; }
+      .lp-card-bordered p { font-size: 14px; }
+      .lp-diff { margin-top: 56px; }
+
+      /* Not-a-proxy split: narrative left, figure right; stacks under 1024px. */
+      .lp-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: center; }
+      .lp-points { margin-top: 32px; border-top: 1px solid var(--line); }
+      .lp-points li { padding: 16px 0; border-bottom: 1px solid var(--line); font: 400 18px/1.5 var(--font-body); color: var(--tx-body); }
+      .lp-note { margin-top: 24px; font: 400 14px/1.5 var(--font-body); color: var(--tx-2); }
+      .lp-fig {
+        display: grid; grid-template-columns: minmax(120px, 168px) minmax(0, 1fr) minmax(120px, 168px);
+        grid-template-rows: auto 96px auto; width: 100%; max-width: 640px; justify-self: end;
+      }
+      .lp-fig-box {
+        display: flex; align-items: center; justify-content: center; min-height: 64px; padding: 16px 20px;
+        background: var(--bg-2); border: 1px solid var(--line-2); border-radius: var(--r-lg);
+        font: 500 15px/1.3 var(--font-ui); color: var(--tx-0); text-align: center;
+      }
+      .lp-fig-thick { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 8px; padding: 0 10px; }
+      .lp-fig-line { position: relative; width: 100%; height: 3px; background: var(--tx-0); border-radius: 2px; }
+      .lp-fig-line::before, .lp-fig-line::after { content: ""; position: absolute; top: 50%; width: 0; height: 0; border: 6px solid transparent; transform: translateY(-50%); }
+      .lp-fig-line::before { left: -2px; border-left: 0; border-right: 8px solid var(--tx-0); }
+      .lp-fig-line::after { right: -2px; border-right: 0; border-left: 8px solid var(--tx-0); }
+      .lp-fig-label { font: 400 12px/1.5 var(--font-mono); color: var(--tx-2); text-align: center; }
+      .lp-fig-vert { grid-column: 1; display: flex; justify-content: center; gap: 28px; }
+      .lp-fig-arrow { position: relative; width: 1px; background: var(--line-3); }
+      .lp-fig-arrow::before { content: ""; position: absolute; left: 50%; transform: translateX(-50%); width: 0; height: 0; border: 5px solid transparent; }
+      .lp-fig-arrow-up::before { top: 0; border-top: 0; border-bottom: 8px solid var(--tx-1); }
+      .lp-fig-arrow-down::before { bottom: 0; border-bottom: 0; border-top: 8px solid var(--tx-1); }
+      .lp-fig-vlabels { grid-column: 2 / 4; align-self: center; padding-left: 12px; display: flex; flex-direction: column; gap: 8px; font: 400 12px/1.5 var(--font-mono); color: var(--tx-2); }
+      .lp-fig-pon { grid-column: 1; }
+
+      /* Pricing — 3-up, featured tier on --bg-3; stacks under 1024px. */
+      .lp-tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 56px; }
+      .lp-tier { display: flex; flex-direction: column; background: var(--bg-2); border: 1px solid var(--line-2); border-radius: var(--r-lg); padding: 32px; text-align: left; }
+      .lp-tier-featured { background: var(--bg-3); }
+      .lp-tier-name { font: 500 24px/1.5 var(--font-ui); letter-spacing: -0.4px; color: var(--tx-0); }
+      .lp-tier-price { margin-top: 8px; font: 400 clamp(32px, 4vw, 48px)/1.2 var(--font-body); letter-spacing: -0.04em; color: var(--tx-0); }
+      .lp-tier-list { margin: 24px 0 32px; padding-top: 24px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; flex: 1; }
+      .lp-tier-list li { display: flex; gap: 10px; align-items: flex-start; font: 400 14px/1.5 var(--font-body); color: var(--tx-body); }
+      .lp-tier-list svg { flex: none; width: 16px; height: 16px; margin-top: 3px; color: var(--tx-2); }
+      .lp-tier .lp-btn { width: 100%; }
+      .lp-footnote { margin-top: 24px; font: 400 12px/1.5 var(--font-ui); color: var(--tx-3); }
+
+      /* FAQ — single column, hairline dividers. */
+      .lp-faq { max-width: 760px; margin-top: 48px; border-top: 1px solid var(--line); }
+      .lp-faq-item { padding: 24px 0; border-bottom: 1px solid var(--line); }
+      .lp-faq dt { font: 500 18px/1.4 var(--font-ui); letter-spacing: -0.2px; color: var(--tx-0); }
+      .lp-faq dd { margin-top: 8px; font: 400 16px/1.5 var(--font-body); color: var(--tx-2); }
+
+      /* Closing band and footer. */
+      .lp-closing .lp-window { max-width: 760px; margin: 48px auto 0; text-align: left; }
+      .lp-closing .lp-actions { justify-content: center; }
+      .lp-footer { padding: 64px 0; border-top: 1px solid var(--divider-soft); }
+      .lp-footer-in { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; font: 400 14px/1.43 var(--font-ui); color: var(--tx-1); }
+      .lp-footer-links { display: flex; gap: 24px; flex: 1; }
+      .lp-footer-links a:hover { color: var(--tx-0); }
+      .lp-footer-copy { font-size: 12px; color: var(--tx-3); }
+
+      /* Breakpoint ladder — 96 → 76 → 56 → 44 for the H1; grids 4/3 → 2 → 1. */
+      @media (max-width: 1439px) {
+        .lp-h1 { font-size: 76px; }
+      }
+      @media (max-width: 1279px) {
+        .lp-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 1023px) {
+        .lp-nav-links { display: none; }
+        .lp-nav-menu { display: block; }
+        .lp-nav-in { grid-template-columns: auto 1fr; }
+        .lp-h1 { font-size: 56px; }
+        .lp-h2 { font-size: 44px; letter-spacing: -2px; }
+        .lp-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .lp-split { grid-template-columns: 1fr; gap: 48px; }
+        .lp-fig { justify-self: start; }
+        .lp-tiers { grid-template-columns: 1fr; max-width: 480px; margin-left: auto; margin-right: auto; }
+      }
+      @media (max-width: 767px) {
+        .lp-grid-4, .lp-grid-3 { grid-template-columns: 1fr; }
+        .lp-code { white-space: pre-wrap; word-break: break-word; }
+        /* The diff container stays `normal` so the source newlines between line divs never render. */
+        .lp-code-diff { white-space: normal; }
+        .lp-diff-line { white-space: pre-wrap; word-break: break-word; }
+        .lp-actions .lp-btn, .lp-tier .lp-btn { height: 44px; padding: 0 18px; }
+        .lp-prompt { margin-top: 64px; }
+      }
+      @media (max-width: 639px) {
+        .lp-nav-signin { display: none; }
+        .lp-fig { grid-template-columns: minmax(0, 1fr) minmax(88px, 1fr) minmax(0, 1fr); }
+        .lp-fig-box { padding: 12px 10px; min-height: 56px; font-size: 14px; }
+        .lp-fig-thick { padding: 0 6px; }
+      }
+      @media (max-width: 425px) {
+        .lp-wrap { padding: 0 20px; }
+        .lp-hero, .lp-section { padding: 64px 0; }
+        .lp-band { padding: 80px 0; }
+        .lp-h1 { font-size: 44px; }
+        .lp-h2 { font-size: 36px; letter-spacing: -1.4px; }
+        .lp-sub { font-size: 18px; }
+        .lp-prompt-title { font-size: 22px; }
+        .lp-card { padding: 24px; }
+        .lp-tier { padding: 24px; }
+        .lp-footer { padding: 48px 0; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .lp-btn, .lp-nav-links a { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <span id="lp-copy-status" class="lp-sr" aria-live="polite"></span>
+
+    <nav class="lp-nav" aria-label="Main">
+      <div class="lp-wrap lp-nav-in">
+        <a class="lp-wordmark" href="/">PromptOn</a>
+        <div class="lp-nav-links">
+          <a href="#how-it-works">How it works</a>
+          <a href="#pricing">Pricing</a>
+          <a href="__DOCS_URL__">Docs</a>
+          <a href="#faq">FAQ</a>
+        </div>
+        <div class="lp-nav-right">
+          <a class="lp-btn lp-btn-ghost lp-nav-signin" href="__APP_URL__/sign-in">Sign in</a>
+          <button type="button" class="lp-btn lp-btn-primary" id="lp-nav-copy">Copy the prompt</button>
+          <details class="lp-nav-menu">
+            <summary aria-label="Menu">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M2 4h12M2 8h12M2 12h12"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </summary>
+            <div class="lp-nav-menu-panel">
+              <a href="#how-it-works">How it works</a>
+              <a href="#pricing">Pricing</a>
+              <a href="__DOCS_URL__">Docs</a>
+              <a href="#faq">FAQ</a>
+              <a href="__APP_URL__/sign-in">Sign in</a>
+            </div>
+          </details>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <header class="lp-hero">
+        <div class="lp-wrap">
+          <span class="lp-pill">The control plane for your app's LLM prompts</span>
+          <h1 class="lp-h1">
+            One prompt sets up everything.
+            <span class="lp-h1-dim">Prompt monitoring, evaluation, and deployment — all automatic.</span>
+          </h1>
+          <p class="lp-sub">
+            Your coding AI installs PromptOn, moves every prompt and model call out of your codebase, and wires up monitoring. From then on, new models are evaluated on your real traffic and shipped with a pin. No code, no redeploy.
+          </p>
+
+          <div class="lp-prompt" id="prompt">
+            <h2 class="lp-prompt-title">
+              Paste this into your coding AI<span class="lp-prompt-title-light"> — Claude Code, Codex, Cursor, whatever you use.</span>
+            </h2>
+            <p class="lp-prompt-lead">
+              Five minutes later your app runs on PromptOn, and you didn't write a line.
+            </p>
+            <div class="lp-window" id="lp-prompt-window">
+              <.window_bar />
+              <div class="lp-tabs"><.tab label="prompt.txt" /></div>
+              <pre class="lp-code" id="lp-prompt">Set up PromptOn for this app.
+
+1. Install the CLI (curl -fsSL __HOME_URL__/install.sh | sh) and run
+   `prompton login`. Wait for me to approve it in the browser.
+2. Find every LLM call in this codebase. For each one, create a use case in
+   PromptOn, move its prompt and model there, and deploy it to production.
+3. Change each call to fetch its prompt, model, and parameters from PromptOn.
+   Keep our own API keys and HTTP calls — PromptOn is config, not a proxy.
+4. Report each call's result to PromptOn as a monitoring log.
+5. Show me the diff before you change anything.
+
+Everything you need is here: __DOCS_URL__/agent</pre>
+            </div>
+            <div class="lp-actions">
+              <button
+                type="button"
+                class="lp-btn lp-btn-primary lp-btn-copy"
+                id="lp-copy-prompt"
+                data-copy-target="lp-prompt"
+              >
+                Copy the prompt
+              </button>
+              <a class="lp-btn lp-btn-ghost" href="#how-it-works">What does it do? →</a>
+            </div>
+            <p class="lp-trust">
+              Not a proxy. Your app calls the model with your own keys; PromptOn hands it the prompt, the model, and the parameters. If we go down, your app keeps running on the last snapshot.
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <section class="lp-section lp-band lp-glow lp-glow-blue" id="how-it-works">
+        <div class="lp-wrap">
+          <div class="lp-head">
+            <h2 class="lp-h2">Here's what happens in those five minutes.</h2>
+          </div>
+          <ol class="lp-grid lp-grid-4">
+            <li class="lp-card">
+              <span class="lp-card-num">01</span>
+              <h3 class="lp-card-title">Install &amp; login</h3>
+              <p>
+                The CLI installs in one line. Approve the login in your browser; the agent waits.
+              </p>
+            </li>
+            <li class="lp-card">
+              <span class="lp-card-num">02</span>
+              <h3 class="lp-card-title">Migrate</h3>
+              <p>
+                The agent finds every LLM call in your codebase and moves each prompt and model choice into a use case.
+              </p>
+            </li>
+            <li class="lp-card">
+              <span class="lp-card-num">03</span>
+              <h3 class="lp-card-title">Wire</h3>
+              <p>
+                Each call now fetches its prompt, model, and parameters from PromptOn and reports the result as a monitoring log.
+              </p>
+            </li>
+            <li class="lp-card">
+              <span class="lp-card-num">04</span>
+              <h3 class="lp-card-title">Diff</h3>
+              <p>Nothing changes until you've read the diff.</p>
+            </li>
+          </ol>
+          <figure class="lp-diff">
+            <div class="lp-window">
+              <.window_bar />
+              <div class="lp-diff-pane">
+                <div class="lp-tabs"><.tab label="before" /></div>
+                <div class="lp-code lp-code-diff">
+                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span> model: "gpt-4o",</div>
+                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span> messages: [{ role: "system", content: "You are a diary coach…" }, …]</div>
+                </div>
+              </div>
+              <div class="lp-diff-pane">
+                <div class="lp-tabs"><.tab label="after" /></div>
+                <div class="lp-code lp-code-diff">
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span> const { model, params, messages } = await resolve("diary_generation", { prompt: "ko", variables })</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span> // call the model with your own key, exactly as before</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span> log({ use_case: "diary_generation", model, usage, latency_ms })</div>
+                </div>
+              </div>
+            </div>
+            <figcaption class="lp-caption">
+              Your agent writes this in your language. There's no SDK to learn.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="lp-section" id="new-model">
+        <div class="lp-wrap">
+          <div class="lp-head">
+            <h2 class="lp-h2">
+              A new model dropped. By lunch you know if it's better for your app.
+            </h2>
+          </div>
+          <ul class="lp-grid lp-grid-3">
+            <li class="lp-card">
+              <h3 class="lp-card-title">
+                Evaluate on real traffic <span class="lp-pill">Soon</span>
+              </h3>
+              <p>
+                Score the new model against samples of your monitoring logs, with a rubric your coding AI writes from the few you rated.
+              </p>
+            </li>
+            <li class="lp-card">
+              <h3 class="lp-card-title">Pin to staging</h3>
+              <p>
+                One pin per environment: model, parameters, prompt version. No rules, no weights.
+              </p>
+            </li>
+            <li class="lp-card">
+              <h3 class="lp-card-title">Promote or roll back</h3>
+              <p>
+                Promote when you've looked. Every change is a revision; every revision rolls back in one click.
+              </p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="lp-section lp-band lp-glow lp-glow-green" id="not-a-proxy">
+        <div class="lp-wrap lp-split">
+          <div>
+            <h2 class="lp-h2">We're not in the request path.</h2>
+            <ul class="lp-points">
+              <li>Your keys stay yours.</li>
+              <li>If PromptOn is down, your app keeps running on the last snapshot.</li>
+              <li>Inputs and outputs are sampled and encrypted, with retention you set.</li>
+            </ul>
+            <p class="lp-note">
+              We run our own product on it — every model call in HeyDiary goes through PromptOn.
+            </p>
+          </div>
+          <div
+            class="lp-fig"
+            role="img"
+            aria-label="Your app calls the model provider directly with your keys and your HTTP calls. PromptOn sits beside that path: it sends configuration up to your app by ETag polling and receives batched monitoring logs back."
+          >
+            <div class="lp-fig-box">Your app</div>
+            <div class="lp-fig-thick" aria-hidden="true">
+              <span class="lp-fig-line"></span>
+              <span class="lp-fig-label">your keys, your HTTP calls</span>
+            </div>
+            <div class="lp-fig-box">Model provider</div>
+            <div class="lp-fig-vert" aria-hidden="true">
+              <span class="lp-fig-arrow lp-fig-arrow-up"></span>
+              <span class="lp-fig-arrow lp-fig-arrow-down"></span>
+            </div>
+            <div class="lp-fig-vlabels" aria-hidden="true">
+              <span>↑ config (ETag polling)</span>
+              <span>↓ monitoring logs (batched)</span>
+            </div>
+            <div class="lp-fig-box lp-fig-pon">PromptOn</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="lp-section" id="features">
+        <div class="lp-wrap">
+          <div class="lp-head">
+            <h2 class="lp-h2">Everything else, briefly.</h2>
+          </div>
+          <ul class="lp-grid lp-grid-4">
+            <li class="lp-card lp-card-bordered">
+              <h3 class="lp-card-title">Deployments are pins</h3>
+              <p>One pin per environment. No router to debug at 2 a.m.</p>
+            </li>
+            <li class="lp-card lp-card-bordered">
+              <h3 class="lp-card-title">Prompts by name</h3>
+              <p>
+                <code class="lp-code-inline">ko</code>,
+                <code class="lp-code-inline">default</code>
+                — with declared variables. A missing required one is a 400, never a silent fallback.
+              </p>
+            </li>
+            <li class="lp-card lp-card-bordered">
+              <h3 class="lp-card-title">Side-by-side arena</h3>
+              <p>
+                Run your real inputs through several models at once. History is kept per model.
+              </p>
+            </li>
+            <li class="lp-card lp-card-bordered">
+              <h3 class="lp-card-title">Monitoring logs</h3>
+              <p>Tokens, cost, latency, stop reason — per use case, per environment.</p>
+            </li>
+            <li class="lp-card lp-card-bordered">
+              <h3 class="lp-card-title">Scoped API keys</h3>
+              <p>Per project: resolve, logs, or both.</p>
+            </li>
+            <li class="lp-card lp-card-bordered">
+              <h3 class="lp-card-title">Management API + CLI</h3>
+              <p>
+                Everything in the UI is in the API. --json everywhere. Creates are idempotent.
+              </p>
+            </li>
+            <li class="lp-card lp-card-bordered">
+              <h3 class="lp-card-title">Orgs and projects</h3>
+              <p>Personal and team organizations, members, usage.</p>
+            </li>
+            <li class="lp-card lp-card-bordered">
+              <h3 class="lp-card-title">Rollback in one click</h3>
+              <p>Every deployment is a revision you can return to.</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="lp-section lp-band lp-glow lp-glow-orange lp-center" id="pricing">
+        <div class="lp-wrap">
+          <div class="lp-head">
+            <h2 class="lp-h2">Pricing</h2>
+            <p class="lp-lead">Start free. Pay for volume and retention.</p>
+          </div>
+          <ul class="lp-tiers">
+            <li class="lp-tier">
+              <h3 class="lp-tier-name">Free</h3>
+              <p class="lp-tier-price">$0</p>
+              <ul class="lp-tier-list">
+                <li><.check />10,000 monitoring logs a month</li>
+                <li><.check />7 days of log retention</li>
+                <li><.check />Unlimited use cases, prompts, and deployments</li>
+                <li><.check />Arena and rollback</li>
+              </ul>
+              <a class="lp-btn lp-btn-outline" href="__APP_URL__/sign-in">Start free</a>
+            </li>
+            <li class="lp-tier lp-tier-featured">
+              <h3 class="lp-tier-name">Team</h3>
+              <p class="lp-tier-price">Usage-based</p>
+              <ul class="lp-tier-list">
+                <li><.check />Everything in Free</li>
+                <li><.check />More logs and longer retention</li>
+                <li><.check />Team organizations and members</li>
+              </ul>
+              <a class="lp-btn lp-btn-primary" href="__APP_URL__/sign-in">Get started</a>
+            </li>
+            <li class="lp-tier">
+              <h3 class="lp-tier-name">Pro</h3>
+              <p class="lp-tier-price">Usage-based</p>
+              <ul class="lp-tier-list">
+                <li><.check />Everything in Team</li>
+                <li><.check />Continuous auto-evaluation with sampling</li>
+                <li><.check />Runs on your own OpenRouter key</li>
+              </ul>
+              <a class="lp-btn lp-btn-outline" href="__APP_URL__/sign-in">Get started</a>
+            </li>
+          </ul>
+          <p class="lp-footnote">Plan limits apply when billing launches.</p>
+        </div>
+      </section>
+
+      <section class="lp-section" id="faq">
+        <div class="lp-wrap">
+          <h2 class="lp-h2">Questions</h2>
+          <dl class="lp-faq">
+            <div class="lp-faq-item">
+              <dt>Is this a proxy?</dt>
+              <dd>
+                No. Your app calls the model provider directly with your own keys. PromptOn only serves configuration and receives logs.
+              </dd>
+            </div>
+            <div class="lp-faq-item">
+              <dt>What if PromptOn is down?</dt>
+              <dd>
+                Your app keeps running on the last snapshot it fetched. Deploys pause; requests don't.
+              </dd>
+            </div>
+            <div class="lp-faq-item">
+              <dt>Which providers?</dt>
+              <dd>OpenRouter today, which covers most models. More are coming.</dd>
+            </div>
+            <div class="lp-faq-item">
+              <dt>Do I have to use the CLI?</dt>
+              <dd>
+                No. The web app does everything. The CLI and API exist so your coding AI can do it for you.
+              </dd>
+            </div>
+            <div class="lp-faq-item">
+              <dt>Where do my prompts live?</dt>
+              <dd>In PromptOn, on an encrypted database. Monitoring-log content and provider keys are additionally encrypted with a separate key. Export anytime.</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="lp-section lp-band lp-center lp-closing" id="closing">
+        <div class="lp-wrap">
+          <h2 class="lp-h2">Five minutes. One paste.</h2>
+          <div class="lp-window">
+            <.window_bar />
+            <div class="lp-tabs"><.tab label="prompt.txt" /></div>
+            <pre class="lp-code" id="lp-prompt-2">Set up PromptOn for this app.
+
+1. Install the CLI (curl -fsSL __HOME_URL__/install.sh | sh) and run
+   `prompton login`. Wait for me to approve it in the browser.
+2. Find every LLM call in this codebase. For each one, create a use case in
+   PromptOn, move its prompt and model there, and deploy it to production.
+3. Change each call to fetch its prompt, model, and parameters from PromptOn.
+   Keep our own API keys and HTTP calls — PromptOn is config, not a proxy.
+4. Report each call's result to PromptOn as a monitoring log.
+5. Show me the diff before you change anything.
+
+Everything you need is here: __DOCS_URL__/agent</pre>
+          </div>
+          <div class="lp-actions">
+            <button
+              type="button"
+              class="lp-btn lp-btn-primary lp-btn-copy"
+              id="lp-copy-prompt-2"
+              data-copy-target="lp-prompt-2"
+            >
+              Copy the prompt
+            </button>
+            <a class="lp-btn lp-btn-ghost" href="__APP_URL__/sign-in">Sign up by hand →</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="lp-footer">
+      <div class="lp-wrap lp-footer-in">
+        <a class="lp-wordmark" href="/">PromptOn</a>
+        <div class="lp-footer-links">
+          <a href="__DOCS_URL__">Docs</a>
+          <a href="__APP_URL__/sign-in">Sign in</a>
+        </div>
+        <span class="lp-footer-copy">© 2026 PromptOn</span>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        var status = document.getElementById("lp-copy-status");
+
+        function selectText(node) {
+          var selection = window.getSelection();
+          if (!selection) return;
+          var range = document.createRange();
+          range.selectNodeContents(node);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+
+        function fallbackCopy(text) {
+          var area = document.createElement("textarea");
+          area.value = text;
+          area.setAttribute("readonly", "");
+          area.style.position = "fixed";
+          area.style.top = "0";
+          area.style.left = "0";
+          area.style.opacity = "0";
+          document.body.appendChild(area);
+          area.select();
+          var ok = false;
+          try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+          document.body.removeChild(area);
+          return ok ? Promise.resolve() : Promise.reject(new Error("copy failed"));
+        }
+
+        function copyText(text) {
+          if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(text).catch(function () { return fallbackCopy(text); });
+          }
+          return fallbackCopy(text);
+        }
+
+        function flash(button, label) {
+          if (!button.hasAttribute("data-label")) button.setAttribute("data-label", button.textContent.trim());
+          button.textContent = label;
+          clearTimeout(button.lpTimer);
+          button.lpTimer = setTimeout(function () {
+            button.textContent = button.getAttribute("data-label");
+          }, 1500);
+        }
+
+        Array.prototype.forEach.call(document.querySelectorAll("[data-copy-target]"), function (button) {
+          button.addEventListener("click", function () {
+            var source = document.getElementById(button.getAttribute("data-copy-target"));
+            if (!source) return;
+            copyText(source.textContent).then(function () {
+              flash(button, "Copied");
+              if (status) status.textContent = "Prompt copied to clipboard.";
+            }, function () {
+              selectText(source);
+              flash(button, "Select and copy");
+              if (status) status.textContent = "Copy failed. The prompt is selected; copy it with your keyboard.";
+            });
+          });
+        });
+
+        var navCopy = document.getElementById("lp-nav-copy");
+        var heroCopy = document.getElementById("lp-copy-prompt");
+        var promptWindow = document.getElementById("lp-prompt-window");
+        if (navCopy && heroCopy) {
+          navCopy.addEventListener("click", function () {
+            if (promptWindow) promptWindow.scrollIntoView({ behavior: "smooth", block: "center" });
+            heroCopy.click();
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>
