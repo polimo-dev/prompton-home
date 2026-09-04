@@ -370,7 +370,7 @@
             <span class="lp-h1-dim">Prompt monitoring, evaluation, and deployment — all automatic.</span>
           </h1>
           <p class="lp-sub">
-            Your coding AI checks whether PromptOn fits your app, installs it, moves every prompt and model call out of your codebase, and wires up monitoring. From then on, new models are evaluated on your real traffic and shipped with a pin. No code, no redeploy.
+            Agent-friendly by design: hand your coding AI the CLI and it does the rest. It checks whether PromptOn fits your app, installs it, moves every prompt and model call out of your codebase, and wires up monitoring. From then on, new models are evaluated on your real traffic and shipped with a pin. No code, no redeploy.
           </p>
 
           <div class="lp-prompt" id="prompt">
@@ -416,7 +416,7 @@ follow it step by step.
               <a class="lp-btn lp-btn-ghost" href="#how-it-works">What does it do? →</a>
             </div>
             <p class="lp-trust">
-              Not a proxy. Your app calls the model with your own keys; PromptOn hands it the prompt, the model, and the parameters. If we go down, your app keeps running on the last snapshot.
+              Free to start, no credit card. Not a proxy. Your app calls the model with your own keys; PromptOn hands it the prompt, the model, and the parameters. If we go down, your app keeps running on the last snapshot.
             </p>
           </div>
         </div>
@@ -464,15 +464,15 @@ follow it step by step.
                 <div class="lp-tabs"><span class="lp-tab lp-tab-active">before</span></div>
                 <div class="lp-code lp-code-diff">
                   <div class="lp-diff-line lp-del"><span class="lp-sign">-</span> model: "gpt-4o",</div>
-                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span> messages: [{ role: "system", content: "You are a diary coach…" }, …]</div>
+                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span> messages: [{ role: "system", content: "You are a friendly support agent…" }, …]</div>
                 </div>
               </div>
               <div class="lp-diff-pane">
                 <div class="lp-tabs"><span class="lp-tab lp-tab-active">after</span></div>
                 <div class="lp-code lp-code-diff">
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span> const { model, params, messages } = await resolve("diary_generation", { prompt: "ko", variables })</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span> const { model, params, messages } = await resolve("support_reply", { variables: { question } })</div>
                   <div class="lp-diff-line lp-add"><span class="lp-sign">+</span> // call the model with your own key, exactly as before</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span> log({ use_case: "diary_generation", model, usage, latency_ms })</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span> log({ use_case: "support_reply", model, usage, latency_ms })</div>
                 </div>
               </div>
             </div>
@@ -482,6 +482,41 @@ follow it step by step.
           </figure>
         </div>
       </section>
+
+      <section class="lp-section" id="agent-friendly">
+        <div class="lp-wrap">
+          <div class="lp-head">
+            <h2 class="lp-h2">Agent-friendly by design.</h2>
+            <p class="lp-lead">Hand your coding agent the CLI. It does the rest; you approve.</p>
+          </div>
+          <ul class="lp-grid lp-grid-3">
+            <li class="lp-card lp-card-bordered">
+              <h3 class="lp-card-title">Everything is in the CLI</h3>
+              <p>
+                Whatever the web app does, <code class="lp-code-inline">prompton</code> does too:
+                <code class="lp-code-inline">--json</code> output, idempotent creates, exit codes that
+                mean something, and one login your agent simply waits for.
+              </p>
+            </li>
+            <li class="lp-card lp-card-bordered">
+              <h3 class="lp-card-title">One page it can read</h3>
+              <p>
+                The whole contract lives on one page,
+                <a href="__DOCS_URL__/agent">docs.prompton.ai/agent</a>, served as Markdown to
+                programs. Nothing to learn, nothing to click through.
+              </p>
+            </li>
+            <li class="lp-card lp-card-bordered">
+              <h3 class="lp-card-title">It stops for what's yours</h3>
+              <p>
+                Which project, whether PromptOn fits, the migration plan, the diff. Everything in
+                between it does on its own.
+              </p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
 
       <section class="lp-section" id="new-model">
         <div class="lp-wrap">
@@ -525,7 +560,7 @@ follow it step by step.
               <li>Inputs and outputs are sampled and encrypted, with retention you set.</li>
             </ul>
             <p class="lp-note">
-              We run our own product on it — every model call in HeyDiary goes through PromptOn.
+              We run our own product on it — every model call we make in production goes through PromptOn.
             </p>
           </div>
           <div
@@ -606,13 +641,14 @@ follow it step by step.
         <div class="lp-wrap">
           <div class="lp-head">
             <h2 class="lp-h2">Pricing</h2>
-            <p class="lp-lead">Start free. Pay for volume and retention.</p>
+            <p class="lp-lead">Start free, no card required. Pay for volume and retention.</p>
           </div>
           <ul class="lp-tiers">
             <li class="lp-tier">
               <h3 class="lp-tier-name">Free</h3>
               <p class="lp-tier-price">$0</p>
               <ul class="lp-tier-list">
+                <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>No credit card required</li>
                 <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>10,000 monitoring logs a month</li>
                 <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>7 days of log retention</li>
                 <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>Unlimited use cases, prompts, and deployments</li>
@@ -723,6 +759,7 @@ follow it step by step.
             </button>
             <a class="lp-btn lp-btn-ghost" href="__APP_URL__/sign-in">Sign up by hand →</a>
           </div>
+          <p class="lp-trust">Free to start, no credit card. You approve the login, the plan, and the diff; your agent does everything else.</p>
         </div>
       </section>
     </main>
