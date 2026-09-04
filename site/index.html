@@ -179,7 +179,15 @@
       .lp-add { background: rgba(34, 255, 153, 0.08); }
       .lp-del .lp-sign { color: var(--err); }
       .lp-add .lp-sign { color: var(--ok); }
-      .lp-diff-pane + .lp-diff-pane { border-top: 1px solid var(--line); }
+      /* Whole-file panes: each window scrolls on its own, so a long line never widens the page.
+         `width: max-content` lets the tint of a marked line run the full scrolled width, and the
+         thin always-on scrollbar is the only hint that a line runs past the right edge. */
+      .lp-code-file .lp-diff-line { width: max-content; min-width: 100%; white-space: pre; word-break: normal; }
+      .lp-code-file { scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+      .lp-code-file::-webkit-scrollbar { height: 8px; }
+      .lp-code-file::-webkit-scrollbar-track { background: transparent; }
+      .lp-code-file::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: var(--r-pill); }
+      .lp-code-file::-webkit-scrollbar-thumb:hover { background: var(--line-3); }
       .lp-caption { margin-top: 16px; font: 400 14px/1.5 var(--font-body); color: var(--tx-2); }
       .lp-code-inline { font: 400 13px/1 var(--font-mono); background: var(--bg-3); border-radius: var(--r-xs); padding: 2px 5px; color: var(--tx-body); }
 
@@ -216,6 +224,9 @@
       .lp-card-bordered .lp-card-title { font-size: 16px; letter-spacing: -0.2px; }
       .lp-card-bordered p { font-size: 14px; }
       .lp-diff { margin-top: 56px; }
+      .lp-diff-lead { margin: 0 0 24px; }
+      .lp-diff-files { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+      .lp-diff-files .lp-window { margin-top: 0; }
 
       /* Not-a-proxy split: narrative left, figure right; stacks under 1024px. */
       .lp-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: center; }
@@ -287,15 +298,16 @@
         .lp-h2 { font-size: 44px; letter-spacing: -2px; }
         .lp-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .lp-split { grid-template-columns: 1fr; gap: 48px; }
+        .lp-diff-files { grid-template-columns: 1fr; }
         .lp-fig { justify-self: start; }
         .lp-tiers { grid-template-columns: 1fr; max-width: 480px; margin-left: auto; margin-right: auto; }
       }
       @media (max-width: 767px) {
         .lp-grid-4, .lp-grid-3 { grid-template-columns: 1fr; }
         .lp-code { white-space: pre-wrap; word-break: break-word; }
-        /* The diff container stays `normal` so the source newlines between line divs never render. */
+        /* The diff container stays `normal` so the source newlines between line divs never render;
+           its lines keep `pre` and scroll sideways inside the window instead of wrapping. */
         .lp-code-diff { white-space: normal; }
-        .lp-diff-line { white-space: pre-wrap; word-break: break-word; }
         .lp-actions .lp-btn, .lp-tier .lp-btn { height: 44px; padding: 0 18px; }
         .lp-prompt { margin-top: 64px; }
       }
@@ -458,26 +470,66 @@ follow it step by step.
             </li>
           </ol>
           <figure class="lp-diff">
-            <div class="lp-window">
-              <div class="lp-window-bar" aria-hidden="true"><span class="lp-dot lp-dot-r"></span><span class="lp-dot lp-dot-y"></span><span class="lp-dot lp-dot-g"></span></div>
-              <div class="lp-diff-pane">
-                <div class="lp-tabs"><span class="lp-tab lp-tab-active">before</span></div>
-                <div class="lp-code lp-code-diff">
-                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span> model: "gpt-4o",</div>
-                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span> messages: [{ role: "system", content: "You are a friendly support agent…" }, …]</div>
+            <p class="lp-lead lp-diff-lead">
+              The prompt, the model and the temperature leave your code. The call stays yours.
+            </p>
+            <div class="lp-diff-files">
+              <div class="lp-window">
+                <div class="lp-window-bar" aria-hidden="true"><span class="lp-dot lp-dot-r"></span><span class="lp-dot lp-dot-y"></span><span class="lp-dot lp-dot-g"></span></div>
+                <div class="lp-tabs"><span class="lp-tab lp-tab-active">before.py</span></div>
+                <div class="lp-code lp-code-diff lp-code-file">
+                  <div class="lp-diff-line"><span class="lp-sign"> </span> from openai import OpenAI</div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span> </div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span> client = OpenAI()</div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span> </div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span> </div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span> def support_reply(question: str) -&gt; str:</div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span>     answer = client.chat.completions.create(</div>
+                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>         model="gpt-4o",</div>
+                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>         temperature=0.3,</div>
+                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>         messages=[</div>
+                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>             {"role": "system", "content": "You are a friendly support agent for Acme. "</div>
+                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>                                           "Answer in two or three sentences."},</div>
+                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>             {"role": "user", "content": question},</div>
+                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>         ],</div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span>     )</div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span>     return answer.choices[0].message.content</div>
                 </div>
               </div>
-              <div class="lp-diff-pane">
-                <div class="lp-tabs"><span class="lp-tab lp-tab-active">after</span></div>
-                <div class="lp-code lp-code-diff">
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span> const { model, params, messages } = await resolve("support_reply", { variables: { question } })</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span> // call the model with your own key, exactly as before</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span> log({ use_case: "support_reply", model, usage, latency_ms })</div>
+              <div class="lp-window">
+                <div class="lp-window-bar" aria-hidden="true"><span class="lp-dot lp-dot-r"></span><span class="lp-dot lp-dot-y"></span><span class="lp-dot lp-dot-g"></span></div>
+                <div class="lp-tabs"><span class="lp-tab lp-tab-active">after.py</span></div>
+                <div class="lp-code lp-code-diff lp-code-file">
+                  <div class="lp-diff-line"><span class="lp-sign"> </span> from openai import OpenAI</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span> import prompton</div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span> </div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span> client = OpenAI()</div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span> </div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span> </div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span> def support_reply(question: str) -&gt; str:</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     resolution = prompton.resolve("support_reply")  # the pinned prompt, model and params</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     messages = prompton.render(resolution, {"question": question})</div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span> </div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     def call():</div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span>         answer = client.chat.completions.create(  # your client, your key, as before</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             model=resolution.model, messages=messages, **resolution.effective_params</div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span>         )</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>         choice = answer.choices[0]</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>         return prompton.Outcome(</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             content=choice.message.content,</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             finish_reason=choice.finish_reason,</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             input_tokens=answer.usage.prompt_tokens,</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             output_tokens=answer.usage.completion_tokens,</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>         )</div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span> </div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     outcome = prompton.with_generation(resolution, call, variables={"question": question})</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     return outcome.content</div>
                 </div>
               </div>
             </div>
             <figcaption class="lp-caption">
-              Your agent drops in our SDK for your language, or writes this from the guide. Either way, nothing for you to learn.
+              The prompt, the model and its parameters now come from the pin you deployed in PromptOn, so changing any of them no longer needs a deploy.
+              <code class="lp-code-inline">with_generation</code> times the call and sends the monitoring log — tokens, latency, stop reason — while your OpenAI client and your own key stay exactly where they were, and the same shape drops into the other seven SDKs, or into the client your agent writes from the guide.
             </figcaption>
           </figure>
         </div>
