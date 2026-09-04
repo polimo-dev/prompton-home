@@ -6,14 +6,14 @@
     <title>PromptOn — One prompt sets up everything</title>
     <meta
       name="description"
-      content="PromptOn is the control plane for your app's LLM prompts. Your coding AI moves every prompt and model call out of your codebase and wires up monitoring; new models are evaluated on your real traffic and shipped with a pin. Not a proxy."
+      content="PromptOn is the control plane for your app's LLM prompts. Your coding AI checks whether PromptOn fits your app, moves every prompt and model call out of your codebase, and wires up monitoring; new models are evaluated on your real traffic and shipped with a pin. Not a proxy."
     />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="PromptOn" />
     <meta property="og:title" content="PromptOn — One prompt sets up everything" />
     <meta
       property="og:description"
-      content="Your coding AI installs PromptOn, moves every prompt and model call out of your codebase, and wires up monitoring. Not a proxy: your app keeps its own keys."
+      content="Your coding AI checks whether PromptOn fits your app, moves every prompt and model call out of your codebase, and wires up monitoring. Not a proxy: your app keeps its own keys."
     />
     <meta property="og:url" content="__HOME_URL__/" />
     <meta name="twitter:card" content="summary" />
@@ -370,7 +370,7 @@
             <span class="lp-h1-dim">Prompt monitoring, evaluation, and deployment — all automatic.</span>
           </h1>
           <p class="lp-sub">
-            Your coding AI installs PromptOn, moves every prompt and model call out of your codebase, and wires up monitoring. From then on, new models are evaluated on your real traffic and shipped with a pin. No code, no redeploy.
+            Your coding AI checks whether PromptOn fits your app, installs it, moves every prompt and model call out of your codebase, and wires up monitoring. From then on, new models are evaluated on your real traffic and shipped with a pin. No code, no redeploy.
           </p>
 
           <div class="lp-prompt" id="prompt">
@@ -378,23 +378,29 @@
               Paste this into your coding AI<span class="lp-prompt-title-light"> — Claude Code, Codex, Cursor, whatever you use.</span>
             </h2>
             <p class="lp-prompt-lead">
-              Five minutes later your app runs on PromptOn, and you didn't write a line.
+              It reads the guide, works out whether PromptOn fits, and walks you through the rest.
             </p>
             <div class="lp-window" id="lp-prompt-window">
-              <.window_bar />
-              <div class="lp-tabs"><.tab label="prompt.txt" /></div>
-              <pre class="lp-code" id="lp-prompt">Set up PromptOn for this app.
+              <div class="lp-window-bar" aria-hidden="true"><span class="lp-dot lp-dot-r"></span><span class="lp-dot lp-dot-y"></span><span class="lp-dot lp-dot-g"></span></div>
+              <div class="lp-tabs"><span class="lp-tab lp-tab-active">prompt.txt</span></div>
+              <pre class="lp-code" id="lp-prompt">Set up PromptOn for this app. Read __DOCS_URL__/agent first and
+follow it step by step.
 
-1. Install the CLI (curl -fsSL __HOME_URL__/install.sh | sh) and run
-   `prompton login`. Wait for me to approve it in the browser.
-2. Find every LLM call in this codebase. For each one, create a use case in
-   PromptOn, move its prompt and model there, and deploy it to production.
-3. Change each call to fetch its prompt, model, and parameters from PromptOn.
-   Keep our own API keys and HTTP calls — PromptOn is config, not a proxy.
-4. Report each call's result to PromptOn as a monitoring log.
-5. Show me the diff before you change anything.
-
-Everything you need is here: __DOCS_URL__/agent</pre>
+1. Tell me what PromptOn is, in a few sentences.
+2. Make sure you can see this project's code. If you can't, tell me to paste
+   this into an AI that can, and stop. If you see several projects, ask which.
+3. Check the fit: find every LLM call. PromptOn is for apps whose server calls
+   LLM providers for several use cases, each with its own prompt and model.
+   If that's not this app, say so and stop.
+4. Install the CLI (curl -fsSL __HOME_URL__/install.sh | sh) and run
+   `prompton login`. Walk me through signing up and approving it, then wait.
+5. Write a migration plan from how our prompts are managed today. Wait for
+   my OK.
+6. Migrate in a new git worktree (ask me first if this isn't a git repo).
+   Use the official PromptOn SDK for our language if there is one; otherwise
+   follow the guide's client section. Keep our provider keys and HTTP calls.
+   If PromptOn is ever unreachable, keep using the last snapshot you fetched.
+7. Show me the diff.</pre>
             </div>
             <div class="lp-actions">
               <button
@@ -417,48 +423,50 @@ Everything you need is here: __DOCS_URL__/agent</pre>
       <section class="lp-section lp-band lp-glow lp-glow-blue" id="how-it-works">
         <div class="lp-wrap">
           <div class="lp-head">
-            <h2 class="lp-h2">Here's what happens in those five minutes.</h2>
+            <h2 class="lp-h2">Here's what your agent does.</h2>
           </div>
           <ol class="lp-grid lp-grid-4">
             <li class="lp-card">
               <span class="lp-card-num">01</span>
-              <h3 class="lp-card-title">Install &amp; login</h3>
+              <h3 class="lp-card-title">Fit check</h3>
               <p>
-                The CLI installs in one line. Approve the login in your browser; the agent waits.
+                The agent tells you what PromptOn is, makes sure it can see your code, and finds every LLM call. If PromptOn isn't right for your app, it says so and stops.
               </p>
             </li>
             <li class="lp-card">
               <span class="lp-card-num">02</span>
-              <h3 class="lp-card-title">Migrate</h3>
+              <h3 class="lp-card-title">Install &amp; login</h3>
               <p>
-                The agent finds every LLM call in your codebase and moves each prompt and model choice into a use case.
+                The CLI installs in one line. We email you a six-digit code; you sign in, then approve the login. The agent waits while you do.
               </p>
             </li>
             <li class="lp-card">
               <span class="lp-card-num">03</span>
-              <h3 class="lp-card-title">Wire</h3>
+              <h3 class="lp-card-title">Plan</h3>
               <p>
-                Each call now fetches its prompt, model, and parameters from PromptOn and reports the result as a monitoring log.
+                From however your prompts are managed today — hard-coded, config files, a database — the agent writes a migration plan. Nothing moves until you say OK.
               </p>
             </li>
             <li class="lp-card">
               <span class="lp-card-num">04</span>
-              <h3 class="lp-card-title">Diff</h3>
-              <p>Nothing changes until you've read the diff.</p>
+              <h3 class="lp-card-title">Migrate &amp; diff</h3>
+              <p>
+                The agent works in a new git worktree — a client it writes for your language, or our SDK where one exists. Your provider keys don't move. Nothing lands until you've read the diff.
+              </p>
             </li>
           </ol>
           <figure class="lp-diff">
             <div class="lp-window">
-              <.window_bar />
+              <div class="lp-window-bar" aria-hidden="true"><span class="lp-dot lp-dot-r"></span><span class="lp-dot lp-dot-y"></span><span class="lp-dot lp-dot-g"></span></div>
               <div class="lp-diff-pane">
-                <div class="lp-tabs"><.tab label="before" /></div>
+                <div class="lp-tabs"><span class="lp-tab lp-tab-active">before</span></div>
                 <div class="lp-code lp-code-diff">
                   <div class="lp-diff-line lp-del"><span class="lp-sign">-</span> model: "gpt-4o",</div>
                   <div class="lp-diff-line lp-del"><span class="lp-sign">-</span> messages: [{ role: "system", content: "You are a diary coach…" }, …]</div>
                 </div>
               </div>
               <div class="lp-diff-pane">
-                <div class="lp-tabs"><.tab label="after" /></div>
+                <div class="lp-tabs"><span class="lp-tab lp-tab-active">after</span></div>
                 <div class="lp-code lp-code-diff">
                   <div class="lp-diff-line lp-add"><span class="lp-sign">+</span> const { model, params, messages } = await resolve("diary_generation", { prompt: "ko", variables })</div>
                   <div class="lp-diff-line lp-add"><span class="lp-sign">+</span> // call the model with your own key, exactly as before</div>
@@ -467,7 +475,7 @@ Everything you need is here: __DOCS_URL__/agent</pre>
               </div>
             </div>
             <figcaption class="lp-caption">
-              Your agent writes this in your language. There's no SDK to learn.
+              Your agent writes this in your language, or drops in our SDK where one exists. Either way, nothing for you to learn.
             </figcaption>
           </figure>
         </div>
@@ -603,10 +611,10 @@ Everything you need is here: __DOCS_URL__/agent</pre>
               <h3 class="lp-tier-name">Free</h3>
               <p class="lp-tier-price">$0</p>
               <ul class="lp-tier-list">
-                <li><.check />10,000 monitoring logs a month</li>
-                <li><.check />7 days of log retention</li>
-                <li><.check />Unlimited use cases, prompts, and deployments</li>
-                <li><.check />Arena and rollback</li>
+                <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>10,000 monitoring logs a month</li>
+                <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>7 days of log retention</li>
+                <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>Unlimited use cases, prompts, and deployments</li>
+                <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>Arena and rollback</li>
               </ul>
               <a class="lp-btn lp-btn-outline" href="__APP_URL__/sign-in">Start free</a>
             </li>
@@ -614,9 +622,9 @@ Everything you need is here: __DOCS_URL__/agent</pre>
               <h3 class="lp-tier-name">Team</h3>
               <p class="lp-tier-price">Usage-based</p>
               <ul class="lp-tier-list">
-                <li><.check />Everything in Free</li>
-                <li><.check />More logs and longer retention</li>
-                <li><.check />Team organizations and members</li>
+                <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>Everything in Free</li>
+                <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>More logs and longer retention</li>
+                <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>Team organizations and members</li>
               </ul>
               <a class="lp-btn lp-btn-primary" href="__APP_URL__/sign-in">Get started</a>
             </li>
@@ -624,9 +632,9 @@ Everything you need is here: __DOCS_URL__/agent</pre>
               <h3 class="lp-tier-name">Pro</h3>
               <p class="lp-tier-price">Usage-based</p>
               <ul class="lp-tier-list">
-                <li><.check />Everything in Team</li>
-                <li><.check />Continuous auto-evaluation with sampling</li>
-                <li><.check />Runs on your own OpenRouter key</li>
+                <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>Everything in Team</li>
+                <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>Continuous auto-evaluation with sampling</li>
+                <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>Runs on your own OpenRouter key</li>
               </ul>
               <a class="lp-btn lp-btn-outline" href="__APP_URL__/sign-in">Get started</a>
             </li>
@@ -656,6 +664,12 @@ Everything you need is here: __DOCS_URL__/agent</pre>
               <dd>OpenRouter today, which covers most models. More are coming.</dd>
             </div>
             <div class="lp-faq-item">
+              <dt>Is there an SDK for my language?</dt>
+              <dd>
+                Elixir first; the rest are on the way. Until then your agent writes the client from the guide — a fetch, a cache, and a log call.
+              </dd>
+            </div>
+            <div class="lp-faq-item">
               <dt>Do I have to use the CLI?</dt>
               <dd>
                 No. The web app does everything. The CLI and API exist so your coding AI can do it for you.
@@ -671,22 +685,28 @@ Everything you need is here: __DOCS_URL__/agent</pre>
 
       <section class="lp-section lp-band lp-center lp-closing" id="closing">
         <div class="lp-wrap">
-          <h2 class="lp-h2">Five minutes. One paste.</h2>
+          <h2 class="lp-h2">One paste. Two approvals.</h2>
           <div class="lp-window">
-            <.window_bar />
-            <div class="lp-tabs"><.tab label="prompt.txt" /></div>
-            <pre class="lp-code" id="lp-prompt-2">Set up PromptOn for this app.
+            <div class="lp-window-bar" aria-hidden="true"><span class="lp-dot lp-dot-r"></span><span class="lp-dot lp-dot-y"></span><span class="lp-dot lp-dot-g"></span></div>
+            <div class="lp-tabs"><span class="lp-tab lp-tab-active">prompt.txt</span></div>
+            <pre class="lp-code" id="lp-prompt-2">Set up PromptOn for this app. Read __DOCS_URL__/agent first and
+follow it step by step.
 
-1. Install the CLI (curl -fsSL __HOME_URL__/install.sh | sh) and run
-   `prompton login`. Wait for me to approve it in the browser.
-2. Find every LLM call in this codebase. For each one, create a use case in
-   PromptOn, move its prompt and model there, and deploy it to production.
-3. Change each call to fetch its prompt, model, and parameters from PromptOn.
-   Keep our own API keys and HTTP calls — PromptOn is config, not a proxy.
-4. Report each call's result to PromptOn as a monitoring log.
-5. Show me the diff before you change anything.
-
-Everything you need is here: __DOCS_URL__/agent</pre>
+1. Tell me what PromptOn is, in a few sentences.
+2. Make sure you can see this project's code. If you can't, tell me to paste
+   this into an AI that can, and stop. If you see several projects, ask which.
+3. Check the fit: find every LLM call. PromptOn is for apps whose server calls
+   LLM providers for several use cases, each with its own prompt and model.
+   If that's not this app, say so and stop.
+4. Install the CLI (curl -fsSL __HOME_URL__/install.sh | sh) and run
+   `prompton login`. Walk me through signing up and approving it, then wait.
+5. Write a migration plan from how our prompts are managed today. Wait for
+   my OK.
+6. Migrate in a new git worktree (ask me first if this isn't a git repo).
+   Use the official PromptOn SDK for our language if there is one; otherwise
+   follow the guide's client section. Keep our provider keys and HTTP calls.
+   If PromptOn is ever unreachable, keep using the last snapshot you fetched.
+7. Show me the diff.</pre>
           </div>
           <div class="lp-actions">
             <button
