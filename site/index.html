@@ -400,7 +400,7 @@ follow it step by step.
 
 1. Tell me what PromptOn is: one line, a before-and-after code example, why
    it isn't a proxy, and what it automates (picking the model and prompt per
-   use case, evaluating generations, catching drift).
+   use case, evaluating model calls, catching drift).
 2. Make sure you can see this project's code. If you can't, tell me to paste
    this into an AI that can, and stop. If you see several projects, ask which.
 3. Check the fit: find every LLM call. PromptOn is for apps whose server calls
@@ -413,7 +413,7 @@ follow it step by step.
 6. Migrate in a new git worktree (ask me first if this isn't a git repo).
    Use the official PromptOn SDK for our language if there is one; otherwise
    follow the guide's client section. Keep our provider keys and HTTP calls.
-   If PromptOn is ever unreachable, keep using the last snapshot you fetched.
+   If PromptOn is ever unreachable, keep using the last use cases you fetched.
 7. Show me the diff.</pre>
             </div>
             <div class="lp-actions">
@@ -428,7 +428,7 @@ follow it step by step.
               <a class="lp-btn lp-btn-ghost" href="#how-it-works">What does it do? →</a>
             </div>
             <p class="lp-trust">
-              Free to start, no credit card. Not a proxy. Your app calls the model with your own keys; PromptOn hands it the prompt, the model, and the parameters. If we go down, your app keeps running on the last snapshot.
+              Free to start, no credit card. Not a proxy. Your app calls the model with your own keys; PromptOn hands it the prompt, the model, and the parameters. If we go down, your app keeps running on the last use cases it fetched.
             </p>
           </div>
         </div>
@@ -509,35 +509,25 @@ follow it step by step.
                   <div class="lp-diff-line"><span class="lp-sign"> </span> </div>
                   <div class="lp-diff-line"><span class="lp-sign"> </span> </div>
                   <div class="lp-diff-line"><span class="lp-sign"> </span> def support_reply(question: str) -&gt; str:</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     # The pinned prompt, model and params come from PromptOn.</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     resolution = prompton.resolve("support_reply")</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     messages = prompton.render(resolution, {"question": question})</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     use_case = prompton.use_case("support_reply")</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     messages = use_case.messages({"question": question})</div>
                   <div class="lp-diff-line"><span class="lp-sign"> </span> </div>
                   <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     def call():</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>         # Your client, your key, exactly as before.</div>
                   <div class="lp-diff-line"><span class="lp-sign"> </span>         answer = client.chat.completions.create(</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             model=resolution.model,</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             model=use_case.model,</div>
                   <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             messages=messages,</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             **resolution.effective_params,</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             **use_case.params</div>
                   <div class="lp-diff-line"><span class="lp-sign"> </span>         )</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>         choice = answer.choices[0]</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>         return prompton.Outcome(</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             content=choice.message.content,</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             finish_reason=choice.finish_reason,</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             input_tokens=answer.usage.prompt_tokens,</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             output_tokens=answer.usage.completion_tokens,</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>         )</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>         return prompton.Result.from_openai(answer)</div>
                   <div class="lp-diff-line"><span class="lp-sign"> </span> </div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     outcome = prompton.with_generation(</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>         resolution, call, variables={"question": question}</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     )</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     return outcome.content</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     result = use_case.track(call, variables={"question": question})</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     return result.content</div>
                 </div>
               </div>
             </div>
             <figcaption class="lp-caption">
               The prompt, the model and its parameters now come from the pin you deployed in PromptOn, so changing any of them no longer needs a deploy.
-              <code class="lp-code-inline">with_generation</code> times the call and sends the monitoring log — tokens, latency, stop reason — while your OpenAI client and your own key stay exactly where they were, and the same shape drops into the other seven SDKs, or into the client your agent writes from the guide.
+              <code class="lp-code-inline">use_case.track</code> times the call and sends the monitoring log — tokens, latency, stop reason — while your OpenAI client and your own key stay exactly where they were, and the same shape drops into the other seven SDKs, or into the client your agent writes from the guide.
             </figcaption>
           </figure>
         </div>
@@ -616,7 +606,7 @@ follow it step by step.
             <h2 class="lp-h2">We're not in the request path.</h2>
             <ul class="lp-points">
               <li>Your keys stay yours.</li>
-              <li>If PromptOn is down, your app keeps running on the last snapshot.</li>
+              <li>If PromptOn is down, your app keeps running on the last use cases it fetched.</li>
               <li>Inputs and outputs are sampled and encrypted, with retention you set.</li>
             </ul>
             <p class="lp-note">
@@ -677,7 +667,7 @@ follow it step by step.
             </li>
             <li class="lp-card lp-card-bordered">
               <h3 class="lp-card-title">Scoped API keys</h3>
-              <p>Per project: resolve, logs, or both.</p>
+              <p>Per project: read, logs, or both.</p>
             </li>
             <li class="lp-card lp-card-bordered">
               <h3 class="lp-card-title">Management API + CLI</h3>
@@ -756,7 +746,7 @@ follow it step by step.
             <div class="lp-faq-item">
               <dt>What if PromptOn is down?</dt>
               <dd>
-                Your app keeps running on the last snapshot it fetched. Deploys pause; requests don't.
+                Your app keeps running on the last use cases it fetched. Deploys pause; requests don't.
               </dd>
             </div>
             <div class="lp-faq-item">
@@ -794,7 +784,7 @@ follow it step by step.
 
 1. Tell me what PromptOn is: one line, a before-and-after code example, why
    it isn't a proxy, and what it automates (picking the model and prompt per
-   use case, evaluating generations, catching drift).
+   use case, evaluating model calls, catching drift).
 2. Make sure you can see this project's code. If you can't, tell me to paste
    this into an AI that can, and stop. If you see several projects, ask which.
 3. Check the fit: find every LLM call. PromptOn is for apps whose server calls
@@ -807,7 +797,7 @@ follow it step by step.
 6. Migrate in a new git worktree (ask me first if this isn't a git repo).
    Use the official PromptOn SDK for our language if there is one; otherwise
    follow the guide's client section. Keep our provider keys and HTTP calls.
-   If PromptOn is ever unreachable, keep using the last snapshot you fetched.
+   If PromptOn is ever unreachable, keep using the last use cases you fetched.
 7. Show me the diff.</pre>
           </div>
           <div class="lp-actions">
