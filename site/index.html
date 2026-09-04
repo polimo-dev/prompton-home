@@ -488,8 +488,10 @@ follow it step by step.
                   <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>         model="gpt-4o",</div>
                   <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>         temperature=0.3,</div>
                   <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>         messages=[</div>
-                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>             {"role": "system", "content": "You are a friendly support agent for Acme. "</div>
-                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>                                           "Answer in two or three sentences."},</div>
+                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>             {</div>
+                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>                 "role": "system",</div>
+                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>                 "content": "You are a friendly support agent for Acme.",</div>
+                  <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>             },</div>
                   <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>             {"role": "user", "content": question},</div>
                   <div class="lp-diff-line lp-del"><span class="lp-sign">-</span>         ],</div>
                   <div class="lp-diff-line"><span class="lp-sign"> </span>     )</div>
@@ -507,12 +509,16 @@ follow it step by step.
                   <div class="lp-diff-line"><span class="lp-sign"> </span> </div>
                   <div class="lp-diff-line"><span class="lp-sign"> </span> </div>
                   <div class="lp-diff-line"><span class="lp-sign"> </span> def support_reply(question: str) -&gt; str:</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     resolution = prompton.resolve("support_reply")  # the pinned prompt, model and params</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     # The pinned prompt, model and params come from PromptOn.</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     resolution = prompton.resolve("support_reply")</div>
                   <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     messages = prompton.render(resolution, {"question": question})</div>
                   <div class="lp-diff-line"><span class="lp-sign"> </span> </div>
                   <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     def call():</div>
-                  <div class="lp-diff-line"><span class="lp-sign"> </span>         answer = client.chat.completions.create(  # your client, your key, as before</div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             model=resolution.model, messages=messages, **resolution.effective_params</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>         # Your client, your key, exactly as before.</div>
+                  <div class="lp-diff-line"><span class="lp-sign"> </span>         answer = client.chat.completions.create(</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             model=resolution.model,</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             messages=messages,</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             **resolution.effective_params,</div>
                   <div class="lp-diff-line"><span class="lp-sign"> </span>         )</div>
                   <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>         choice = answer.choices[0]</div>
                   <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>         return prompton.Outcome(</div>
@@ -522,7 +528,9 @@ follow it step by step.
                   <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>             output_tokens=answer.usage.completion_tokens,</div>
                   <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>         )</div>
                   <div class="lp-diff-line"><span class="lp-sign"> </span> </div>
-                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     outcome = prompton.with_generation(resolution, call, variables={"question": question})</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     outcome = prompton.with_generation(</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>         resolution, call, variables={"question": question}</div>
+                  <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     )</div>
                   <div class="lp-diff-line lp-add"><span class="lp-sign">+</span>     return outcome.content</div>
                 </div>
               </div>
